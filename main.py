@@ -1,10 +1,7 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-from matplotlib import style
+from selenium.webdriver.firefox.options import Options
 import pandas, urllib, requests, time, csv, logging, os
-import matplotlib.pyplot as plt
-
-style.use('ggplot')
 
 logger = logging.getLogger('root')
 formatter = logging.Formatter('%(asctime)s : %(levelname)s : %(message)s')
@@ -33,7 +30,6 @@ def import_ibov_tickers():
 
     return tickers
 
-
 def download_historic_data():
     """ 
         Scrapes the data for each ticker
@@ -42,6 +38,8 @@ def download_historic_data():
     tickers = import_ibov_tickers()
     dir_path = os.path.dirname(os.path.realpath(__file__)) + "\data"
 
+    options = Options()
+    options.headless = True
     profile = webdriver.FirefoxProfile()
     profile.set_preference('browser.download.folderList', 2)  # custom location
     profile.set_preference('browser.download.manager.showWhenStarting', True)
@@ -56,8 +54,8 @@ def download_historic_data():
             #    raise Exception('File already exists')
 
             driver = webdriver.Firefox(
-                profile, executable_path='./geckodriver.exe')
-                #period1=946864800&period2=1553828400&interval=1d&filter=history&frequency=1d
+                profile, executable_path='./geckodriver.exe', options=options)
+                
             url = "https://finance.yahoo.com/quote/{}/history?period1=1522528454&period2=1554064454&interval=1d&filter=history&frequency=1d".format(
                 tick + ".SA")
             driver.get(url)
